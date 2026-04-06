@@ -32,6 +32,19 @@ body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;paddi
 .tab{font-family:'DM Mono',monospace;font-size:13px;padding:10px 6px;min-height:44px;border-radius:6px;border:none;background:none;color:var(--text3);cursor:pointer;transition:.2s;touch-action:manipulation;display:flex;align-items:center;justify-content:center;flex:1}
 .tab.on{background:var(--bg3);color:var(--gold)}
 
+/* SUB-BAR (letters mode) */
+.sub-bar{display:none;padding:8px 12px;border-bottom:.5px solid var(--border);background:var(--bg2);flex-shrink:0;gap:8px;align-items:center}
+.sub-bar.on{display:flex}
+.tog{display:flex;align-items:center;gap:8px;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.tog-label{font-size:13px;color:var(--text2)}
+.tog-sw{width:44px;height:26px;border-radius:13px;background:var(--bg);border:1px solid var(--border2);position:relative;transition:.3s;flex-shrink:0}
+.tog-sw::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--text3);transition:.3s}
+.tog-sw.on{background:var(--gold-dim);border-color:rgba(201,168,76,.4)}
+.tog-sw.on::after{left:20px;background:var(--gold)}
+.vfilters{display:flex;gap:4px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto}
+.vf{font-family:'DM Mono',monospace;font-size:12px;padding:6px 12px;min-height:36px;border-radius:99px;border:.5px solid var(--border2);color:var(--text3);background:none;cursor:pointer;touch-action:manipulation;display:inline-flex;align-items:center;transition:.2s;white-space:nowrap}
+.vf.on{background:var(--gold-dim);color:var(--gold);border-color:rgba(201,168,76,.3)}
+
 /* PROGRESS */
 .pbar{height:3px;background:var(--bg3);flex-shrink:0}
 .pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .4s}
@@ -141,6 +154,20 @@ body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;paddi
       <button class="tab" data-p="quiz">quiz</button>
     </div>
   </div>
+  <div class="sub-bar" id="subBar">
+    <div class="tog" id="togNikud">
+      <span class="tog-label">nikud</span>
+      <div class="tog-sw" id="togSw"></div>
+    </div>
+    <div class="vfilters" id="vfilters" style="display:none">
+      <button class="vf on" data-v="todas">todas</button>
+      <button class="vf" data-v="A">A</button>
+      <button class="vf" data-v="E">E</button>
+      <button class="vf" data-v="I">I</button>
+      <button class="vf" data-v="O">O</button>
+      <button class="vf" data-v="U">U</button>
+    </div>
+  </div>
   <div class="pbar"><div class="pfill" id="pf"></div></div>
   <div class="stage"><span id="stg"></span><span id="stgR"></span></div>
   <div class="card" id="card">
@@ -186,11 +213,12 @@ const $=id=>document.getElementById(id);
 const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.random()*i+1|0;[b[i],b[j]]=[b[j],b[i]]}return b};
 
 /* ─── STATE ─── */
-let D={letters:[],words:[],torah:[],tefilot:[]};
+let D={letters:[],nikud:[],words:[],torah:[],tefilot:[]};
 let phase='letters',idx=0,sL=[],sW=[],sT=[];
 let qI=[],qIdx=0,qOK=0,qDone=false;
 let tIdx=0,pLine=0;
 let bsCat='todas';
+let nikudOn=false,vowelF='todas';
 const SK='hebrew-v3';
 
 /* ─── PROGRESS ─── */
@@ -209,7 +237,7 @@ function speak(txt){
   let s=txt;
   if(!s){if(phase==='tefilot'){const pr=D.tefilot[tIdx];s=pr?.lines[pLine]?.heb||pr?.title||''}
   else if(phase==='quiz'){const d=qI[qIdx];s=d?(d.heSpeak||d.char):''}
-  else{const d=cData();s=d?(d.heSpeak||d.char):''}}
+  else{const d=cData();s=d?(d.heSpeak||d._display||d.char):''}}
   const u=new SpeechSynthesisUtterance(s);u.lang='he-IL';u.rate=.8;
   const mark=()=>{b.classList.add('sp');if(b2)b2.classList.add('sp')};
   const unmark=()=>{b.classList.remove('sp');if(b2)b2.classList.remove('sp')};
@@ -321,6 +349,8 @@ function anim(e){e.classList.remove('si-in');void e.offsetWidth;e.classList.add(
 function setP(p){
   phase=p;idx=0;pLine=0;tIdx=0;
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));
+  if(p==='letters')buildLetterList();
+  updateSubBar();
   if(p==='quiz'){startQ();rQuiz();return}
   if(p==='tefilot'){rTef();return}
   render();
@@ -331,14 +361,21 @@ function render(){
   $('pf').style.width=(tot<=1?100:(idx/(tot-1))*100)+'%';
   $('si').textContent=(idx+1)+' / '+tot;
   const h=$('heb'),t=$('tl'),p=$('ph'),tr=$('trt'),sg=$('stg'),sr=$('stgR'),ch=$('chips');
-  rCS(h);anim(h);h.textContent=d.char;t.textContent=d.translit;t.style.display='block';p.textContent=d.phonetic;
+  rCS(h);anim(h);if(phase!=='letters')h.textContent=d.char;t.textContent=d.translit;t.style.display='block';p.textContent=d.phonetic;
   $('qa').classList.remove('on');$('card').style.display='';$('pray').classList.remove('on');
   $('trbar').style.display='';$('qsc').style.display='none';$('trl').textContent='tradução';
   $('mainNav').style.display='';$('tefNav').style.display='none';
   sr.innerHTML='';
 
   if(phase==='letters'){
-    h.className='heb si-in';t.className='tl';sg.textContent='letra · '+(d.vowel||'');
+    h.className='heb si-in';t.className='tl';
+    h.textContent=d._display||d.char;
+    if(!nikudOn){
+      sg.textContent='letra · sem nikud';
+    }else{
+      sg.textContent='letra · '+(d._vowelInfo||d.vowel||'');
+    }
+    p.textContent=d.phonetic;
     ch.style.display='none';tr.textContent=d.translation||'—';tr.className=d.translation?'tr-t':'tr-t em';
   }else if(phase==='words'){
     h.className='heb w si-in';t.className='tl w';
@@ -365,6 +402,65 @@ function prev(){
   if(idx>0){idx--;render()}
 }
 
+/* ─── LETTERS: NIKUD TOGGLE & VOWEL FILTER ─── */
+function buildLetterList(){
+  if(!nikudOn){
+    /* Sem nikud: apenas as 22 letras base */
+    sL=shuffle(D.letters.map(l=>({
+      ...l, _display:l.base, _vowelInfo:'', _nikudName:''
+    })));
+  }else if(vowelF==='todas'){
+    /* Nikud ON + todas: as 22 letras com suas vogais originais */
+    sL=shuffle(D.letters.map(l=>({
+      ...l, _display:l.char, _vowelInfo:l.vowel, _nikudName:''
+    })));
+  }else{
+    /* Nikud ON + filtro: gerar letra+nikud para cada nikud desse som */
+    const nks=D.nikud.filter(n=>n.sound===vowelF);
+    const combos=[];
+    /* Shuruk é especial (usa vav), pular para outras letras */
+    D.letters.forEach(l=>{
+      nks.forEach(n=>{
+        if(n.id==='nk-shuruk')return; /* shuruk é vav+dagesh, caso especial */
+        combos.push({
+          ...l,
+          _display: l.base + n.symbol,
+          _vowelInfo: n.name+' · "'+n.sound+'"',
+          _nikudName: n.name,
+          phonetic: n.phonetic,
+          vowel: n.name+' · "'+n.sound+'"'
+        });
+      });
+    });
+    /* Add shuruk separately if U filter */
+    if(vowelF==='U'){
+      const shuruk=D.nikud.find(n=>n.id==='nk-shuruk');
+      if(shuruk){
+        D.letters.forEach(l=>{
+          combos.push({
+            ...l,
+            _display: l.base + 'וּ',
+            _vowelInfo: 'Shuruk · "U"',
+            _nikudName: 'Shuruk',
+            phonetic: shuruk.phonetic,
+            vowel: 'Shuruk · "U"'
+          });
+        });
+      }
+    }
+    sL=shuffle(combos);
+  }
+  idx=0;
+}
+function updateSubBar(){
+  $('subBar').classList.toggle('on',phase==='letters');
+  $('togSw').classList.toggle('on',nikudOn);
+  $('vfilters').style.display=nikudOn?'flex':'none';
+  document.querySelectorAll('.vf').forEach(b=>b.classList.toggle('on',b.dataset.v===vowelF));
+}
+$('togNikud').onclick=()=>{nikudOn=!nikudOn;if(!nikudOn)vowelF='todas';buildLetterList();updateSubBar();render()};
+$('vfilters').onclick=e=>{const b=e.target.closest('.vf');if(!b)return;vowelF=b.dataset.v;buildLetterList();updateSubBar();render()};
+
 /* ─── KEYBOARD (kept for dev) ─── */
 document.addEventListener('keydown',e=>{
   if(document.activeElement===$('qi')){if(e.key==='Enter'){e.preventDefault();checkQ()}return}
@@ -386,8 +482,8 @@ $('tabs').onclick=e=>{const t=e.target.closest('.tab');if(t)setP(t.dataset.p)};
 
 /* ─── LOAD DATA ─── */
 fetch('data.json').then(r=>r.json()).then(d=>{
-  D=d;sL=shuffle(d.letters);sW=shuffle(d.words);sT=shuffle(d.torah);
-  uStreak();render();
+  D=d;buildLetterList();sW=shuffle(d.words);sT=shuffle(d.torah);
+  updateSubBar();uStreak();render();
 }).catch(()=>{$('trt').textContent='Erro ao carregar dados. Verifique data.json.';$('trt').className='tr-t'});
 </script>
 </body>

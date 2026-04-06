@@ -221,6 +221,20 @@
       "heSpeak": "תָּו"
     }
   ],
+  "nikud": [
+    { "id": "nk-kamatz", "name": "Kamatz", "nameHe": "קָמָץ", "symbol": "ָ", "sound": "A", "phonetic": "a como em 'pai'", "example": "דָ", "exampleLetter": "dalet" },
+    { "id": "nk-patach", "name": "Patach", "nameHe": "פַּתָח", "symbol": "ַ", "sound": "A", "phonetic": "a como em 'pai'", "example": "דַ", "exampleLetter": "dalet" },
+    { "id": "nk-tzere", "name": "Tzere", "nameHe": "צֵרֵי", "symbol": "ֵ", "sound": "E", "phonetic": "e como em 'medo'", "example": "דֵ", "exampleLetter": "dalet" },
+    { "id": "nk-segol", "name": "Segol", "nameHe": "סֶגוֹל", "symbol": "ֶ", "sound": "E", "phonetic": "e como em 'ferro'", "example": "דֶ", "exampleLetter": "dalet" },
+    { "id": "nk-hiriq", "name": "Hiriq", "nameHe": "חִירִיק", "symbol": "ִ", "sound": "I", "phonetic": "i como em 'vida'", "example": "דִ", "exampleLetter": "dalet" },
+    { "id": "nk-holam", "name": "Holam", "nameHe": "חוֹלָם", "symbol": "ֹ", "sound": "O", "phonetic": "o como em 'bola'", "example": "דֹ", "exampleLetter": "dalet" },
+    { "id": "nk-kubutz", "name": "Kubutz", "nameHe": "קֻבּוּץ", "symbol": "ֻ", "sound": "U", "phonetic": "u como em 'uva'", "example": "דֻ", "exampleLetter": "dalet" },
+    { "id": "nk-shuruk", "name": "Shuruk", "nameHe": "שׁוּרוּק", "symbol": "וּ", "sound": "U", "phonetic": "u como em 'uva'", "example": "שׁוּ", "exampleLetter": "shin+vav" },
+    { "id": "nk-shva", "name": "Shva", "nameHe": "שְׁוָא", "symbol": "ְ", "sound": "∅/E", "phonetic": "mudo ou 'e' breve", "example": "דְ", "exampleLetter": "dalet" },
+    { "id": "nk-chataf-patach", "name": "Chataf Patach", "nameHe": "חֲטַף פַּתָח", "symbol": "ֲ", "sound": "A", "phonetic": "a breve", "example": "אֲ", "exampleLetter": "alef" },
+    { "id": "nk-chataf-segol", "name": "Chataf Segol", "nameHe": "חֲטַף סֶגוֹל", "symbol": "ֱ", "sound": "E", "phonetic": "e breve", "example": "אֱ", "exampleLetter": "alef" },
+    { "id": "nk-chataf-kamatz", "name": "Chataf Kamatz", "nameHe": "חֲטַף קָמָץ", "symbol": "ֳ", "sound": "O", "phonetic": "o breve", "example": "אֳ", "exampleLetter": "alef" }
+  ],
   "words": [
     {
       "id": "w-av",
