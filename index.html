@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e0e10">
+<title>Hebrew Learning App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=DM+Mono:wght@300;400&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e10;--bg2:#16161a;--bg3:#1e1e24;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#f0ece4;--text2:#9a9490;--text3:#5a5652;
+  --gold:#c9a84c;--gold2:#e8c97a;--gold-dim:rgba(201,168,76,.12);
+  --blue:#4a8fc4;--blue-dim:rgba(74,143,196,.1);
+  --green:#5a9e7a;--green-dim:rgba(90,158,122,.1);
+  --red:#c45a5a;--red-dim:rgba(196,90,90,.1);
+  --purple:#9a7cc4;--purple-dim:rgba(154,124,196,.1);
+  --r:10px;--rl:16px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{display:flex;flex-direction:column;align-items:center;min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top,12px) 8px env(safe-area-inset-bottom,8px)}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;width:100%;max-width:480px;display:flex;flex-direction:column;border:.5px solid var(--border2);border-radius:var(--rl);overflow:hidden;background:var(--bg2);flex:1;max-height:100dvh}
+.loading{display:flex;align-items:center;justify-content:center;min-height:200px;color:var(--text3);font-size:13px}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:.5px solid var(--border);background:var(--bg3);gap:6px;flex-shrink:0}
+.hdr-t{font-family:'Playfair Display',serif;font-size:14px;color:var(--gold);letter-spacing:.03em;white-space:nowrap}
+.tabs{display:flex;gap:1px;background:var(--bg);border-radius:6px;padding:2px;flex-wrap:wrap}
+.tab{font-family:'DM Mono',monospace;font-size:10px;padding:4px 7px;border-radius:4px;border:none;background:none;color:var(--text3);cursor:pointer;transition:.2s;touch-action:manipulation}
+.tab.on{background:var(--bg3);color:var(--gold)}
+
+/* PROGRESS */
+.pbar{height:2px;background:var(--bg3);flex-shrink:0}
+.pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .4s}
+
+/* STAGE */
+.stage{padding:10px 14px 0;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.badge{font-size:9px;padding:2px 7px;border-radius:99px;letter-spacing:.04em}
+.badge-g{background:var(--green-dim);color:var(--green);border:.5px solid rgba(90,158,122,.3)}
+.badge-c{background:var(--blue-dim);color:var(--blue);border:.5px solid rgba(74,143,196,.2);text-transform:uppercase}
+.badge-s{background:var(--purple-dim);color:var(--purple);border:.5px solid rgba(154,124,196,.2)}
+
+/* CARD */
+.card{padding:20px 14px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;flex:1;overflow:hidden}
+.heb{font-family:'Frank Ruhl Libre',serif;font-size:100px;line-height:1.2;color:var(--text);direction:rtl;text-align:center;min-height:120px;display:flex;align-items:center;justify-content:center;transition:.3s}
+.heb.w{font-size:64px;color:var(--blue)}.heb.t{font-size:64px;color:var(--green)}.heb.p{font-size:28px;color:var(--purple);min-height:auto;line-height:1.7}
+.tl{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);margin-top:6px;text-align:center;letter-spacing:.03em}
+.tl.w{color:var(--blue)}.tl.t{color:var(--green)}.tl.p{color:var(--purple);font-size:15px}
+.ph{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic;text-align:center}
+.chips{display:flex;gap:5px;margin-top:10px;direction:rtl;flex-wrap:wrap;justify-content:center}
+.chip{font-size:10px;padding:2px 7px;border-radius:99px;border:.5px solid var(--border2);color:var(--text2);background:var(--bg3);direction:rtl}
+.abtn{margin-top:14px;width:36px;height:36px;border-radius:50%;border:.5px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:.2s;touch-action:manipulation}
+.abtn:active,.abtn.sp{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+@keyframes p{from{box-shadow:0 0 0 0 rgba(201,168,76,.3)}to{box-shadow:0 0 0 6px rgba(201,168,76,0)}}
+.abtn.sp{animation:p .8s ease infinite alternate}
+
+/* PRAYER */
+.pray{display:none;padding:0 14px 8px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.pray.on{display:block}
+.pray-hd{text-align:center;padding:10px 0 8px;border-bottom:.5px solid var(--border)}
+.pray-hd-h{font-family:'Frank Ruhl Libre',serif;font-size:28px;color:var(--purple);direction:rtl}
+.pray-hd-t{font-family:'Playfair Display',serif;font-size:15px;color:var(--text2);margin-top:3px}
+.pray-hd-d{font-size:10px;color:var(--text3);margin-top:3px}
+.pl{padding:8px 4px;border-bottom:.5px solid var(--border);cursor:pointer;transition:.15s;border-radius:4px}
+.pl:active{background:rgba(255,255,255,.03)}
+.pl:last-child{border-bottom:none}
+.pl.act{background:var(--purple-dim);padding:8px 8px}
+.pl-h{font-family:'Frank Ruhl Libre',serif;font-size:20px;direction:rtl;text-align:right;color:var(--purple);line-height:1.5}
+.pl-t{font-size:10px;color:var(--text2);margin-top:1px}
+.pl-p{font-family:'Playfair Display',serif;font-size:12px;color:var(--text3);margin-top:1px;font-style:italic}
+
+/* TRANSLATION */
+.tr-bar{border-top:.5px solid var(--border);padding:10px 14px;background:var(--bg3);flex-shrink:0}
+.tr-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.tr-t{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);line-height:1.4}
+.tr-t.em{color:var(--text3);font-size:12px;font-family:'DM Mono',monospace;font-style:italic}
+
+/* QUIZ */
+.qa{display:none;flex-direction:column;align-items:center;gap:8px;width:100%;margin-top:10px}
+.qa.on{display:flex}
+.qi{font-family:'DM Mono',monospace;font-size:16px;text-align:center;padding:8px 12px;width:85%;max-width:240px;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);outline:none}
+.qi:focus{border-color:var(--gold)}.qi.ok{border-color:var(--green);color:var(--green)}.qi.no{border-color:var(--red);color:var(--red)}
+.qf{font-size:11px;min-height:16px}.qf.ok{color:var(--green)}.qf.no{color:var(--red)}
+.qs{font-size:10px;color:var(--text3);padding:5px 14px;text-align:center;border-top:.5px solid var(--border);flex-shrink:0}
+
+/* STATS */
+.stats{display:flex;justify-content:center;gap:12px;padding:5px 14px;font-size:10px;color:var(--text3);border-top:.5px solid var(--border);flex-shrink:0}
+.sd{width:6px;height:6px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:3px}
+.sd-g{background:var(--green)}.sd-o{background:var(--gold)}.sd-p{background:var(--purple)}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:.5px solid var(--border);background:var(--bg);flex-shrink:0}
+.nb{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);background:none;border:.5px solid var(--border2);border-radius:var(--r);padding:6px 10px;cursor:pointer;transition:.2s;touch-action:manipulation}
+.nb:active:not(:disabled){border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.nb:disabled{opacity:.25}
+.nb.pr{background:var(--gold-dim);color:var(--gold);border-color:rgba(201,168,76,.3)}
+.nb.lr{background:var(--green-dim);color:var(--green);border-color:rgba(90,158,122,.3)}
+.si{font-size:10px;color:var(--text3)}
+.lbar{display:flex;justify-content:center;padding:6px 14px;border-top:.5px solid var(--border);flex-shrink:0}
+.kh{margin-top:6px;font-size:9px;color:var(--text3);text-align:center;max-width:480px}
+kbd{font-size:9px;border:.5px solid var(--border2);border-radius:3px;padding:1px 4px;color:var(--text2);background:var(--bg3)}
+
+/* ANIM */
+.si-in{animation:si .25s ease}
+@keyframes si{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* MOBILE */
+@media(max-width:400px){.heb{font-size:80px;min-height:100px}.heb.w,.heb.t{font-size:52px}.tl{font-size:18px}.tab{font-size:9px;padding:3px 6px}.hdr-t{font-size:12px}}
+@media(max-height:700px){.card{min-height:180px;padding:14px 12px 10px}.heb{font-size:72px;min-height:90px}}
+.pray::-webkit-scrollbar{width:3px}.pray::-webkit-scrollbar-track{background:transparent}.pray::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="hdr">
+    <span class="hdr-t">עברית · Hebraico</span>
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-p="letters">letras</button>
+      <button class="tab" data-p="words">palavras</button>
+      <button class="tab" data-p="torah">torá</button>
+      <button class="tab" data-p="tefilot">tefilot</button>
+      <button class="tab" data-p="quiz">quiz</button>
+    </div>
+  </div>
+  <div class="pbar"><div class="pfill" id="pf"></div></div>
+  <div class="stage"><span id="stg"></span><span id="stgR"></span></div>
+  <div class="card" id="card">
+    <div class="heb si-in" id="heb"></div>
+    <div class="tl" id="tl"></div>
+    <div class="ph" id="ph"></div>
+    <div class="chips" id="chips" style="display:none"></div>
+    <button class="abtn" id="abtn" title="ouvir em hebraico">&#9835;</button>
+    <div class="qa" id="qa">
+      <input type="text" class="qi" id="qi" placeholder="transliteração..." autocomplete="off" spellcheck="false">
+      <div class="qf" id="qf"></div>
+    </div>
+  </div>
+  <div class="pray" id="pray"></div>
+  <div class="tr-bar" id="trbar">
+    <div class="tr-l" id="trl">tradução</div>
+    <div class="tr-t em" id="trt">carregando...</div>
+  </div>
+  <div class="qs" id="qsc" style="display:none"></div>
+  <div class="stats"><span><span class="sd sd-g"></span><span id="sL">0</span> aprendidos</span><span><span class="sd sd-o"></span><span id="sT">0</span> total</span><span><span class="sd sd-p"></span>seq. <span id="sS">0</span></span></div>
+  <div class="nav">
+    <button class="nb" id="bp" onclick="prev()">&#8592; anterior</button>
+    <span class="si" id="si">1 / 1</span>
+    <button class="nb pr" id="bn" onclick="next()">próximo &#8594;</button>
+  </div>
+  <div class="lbar" id="lb"><button class="nb" id="bl" onclick="toggleLearned()">marcar aprendido</button></div>
+</div>
+<div class="kh"><kbd>&#8592;</kbd> <kbd>&#8594;</kbd> navegar · <kbd>espaço</kbd> áudio · <kbd>L</kbd> aprendido</div>
+
+<script>
+/* ─── UTILS ─── */
+const $=id=>document.getElementById(id);
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.random()*i+1|0;[b[i],b[j]]=[b[j],b[i]]}return b};
+
+/* ─── STATE ─── */
+let D={letters:[],words:[],torah:[],tefilot:[]};
+let phase='letters',idx=0,sL=[],sW=[],sT=[];
+let qI=[],qIdx=0,qOK=0,qDone=false;
+let tIdx=0,pLine=0;
+const SK='hebrew-v3';
+
+/* ─── PROGRESS ─── */
+function lP(){try{return JSON.parse(localStorage.getItem(SK))||{l:{},s:0,d:null}}catch{return{l:{},s:0,d:null}}}
+function sP(p){localStorage.setItem(SK,JSON.stringify(p))}
+function uStreak(){const p=lP(),t=new Date().toISOString().slice(0,10);if(p.d===t)return;const y=new Date(Date.now()-864e5).toISOString().slice(0,10);p.s=p.d===y?p.s+1:1;p.d=t;sP(p)}
+function isL(id){return!!lP().l[id]}
+function togL(id){const p=lP();p.l[id]?delete p.l[id]:p.l[id]=Date.now();sP(p)}
+
+/* ─── DATA HELPERS ─── */
+function cList(){return phase==='letters'?sL:phase==='words'?sW:phase==='torah'?sT:[]}
+function cData(){return phase==='quiz'?qI[qIdx]:phase==='tefilot'?D.tefilot[tIdx]:cList()[idx]}
+
+/* ─── SPEAK HEBREW ─── */
+function speak(txt){
+  if(!window.speechSynthesis)return;
+  const b=$('abtn');speechSynthesis.cancel();
+  let s=txt;
+  if(!s){if(phase==='tefilot'){const pr=D.tefilot[tIdx];s=pr?.lines[pLine]?.heb||pr?.title||''}
+  else if(phase==='quiz'){const d=qI[qIdx];s=d?(d.heSpeak||d.char):''}
+  else{const d=cData();s=d?(d.heSpeak||d.char):''}}
+  const u=new SpeechSynthesisUtterance(s);u.lang='he-IL';u.rate=.8;
+  b.classList.add('sp');u.onend=u.onerror=()=>b.classList.remove('sp');
+  speechSynthesis.speak(u);
+}
+$('abtn').onclick=()=>speak();
+
+/* ─── QUIZ ─── */
+function startQ(){const a=[...D.letters,...D.words,...D.torah];qI=shuffle(a).slice(0,10);qIdx=0;qOK=0;qDone=false}
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[''`]/g,"'").trim()}
+function checkQ(){
+  if(qDone)return;const i=$('qi'),f=$('qf'),ans=norm(i.value);if(!ans)return;
+  qDone=true;const acc=qI[qIdx].translit.split(' / ').map(norm);
+  if(acc.includes(ans)){qOK++;i.classList.add('ok');f.textContent='correto!';f.className='qf ok'}
+  else{i.classList.add('no');f.textContent='resposta: '+qI[qIdx].translit;f.className='qf no'}
+  uQS();setTimeout(()=>{if(qIdx<qI.length-1){qIdx++;qDone=false;rQuiz()}else rQEnd()},1600);
+}
+function rQuiz(){
+  const d=qI[qIdx],h=$('heb'),t=$('tl'),p=$('ph');
+  rCS(h);anim(h);h.textContent=d.char;h.className='heb si-in';
+  t.textContent='';t.style.display='none';
+  p.textContent=d.translation?'? → '+d.translation:'';
+  $('stg').textContent='quiz · '+(qIdx+1)+'/'+qI.length;$('stgR').innerHTML='';
+  $('chips').style.display='none';$('qa').classList.add('on');
+  const qi=$('qi');qi.value='';qi.className='qi';$('qf').textContent='';$('qf').className='qf';qi.focus();
+  $('pf').style.width=((qIdx/Math.max(qI.length-1,1))*100)+'%';
+  $('si').textContent=(qIdx+1)+' / '+qI.length;
+  $('trbar').style.display='none';$('pray').classList.remove('on');
+  $('qsc').style.display='block';$('lb').style.display='none';$('card').style.display='';uQS();
+}
+function rQEnd(){
+  const h=$('heb'),t=$('tl'),p=$('ph');
+  h.textContent=qOK+'/'+qI.length;h.className='heb si-in';
+  h.style.fontFamily="'DM Mono',monospace";h.style.fontSize='56px';
+  h.style.color=qOK>=7?'var(--green)':'var(--gold)';h.style.minHeight='80px';
+  t.style.display='block';t.textContent=qOK>=7?'Excelente!':qOK>=4?'Bom trabalho!':'Continue praticando!';
+  t.className='tl';p.textContent='toque "próximo" para recomeçar';$('qa').classList.remove('on');
+  $('pf').style.width='100%';$('bn').disabled=false;$('bn').textContent='novo quiz →';
+}
+function uQS(){$('qsc').textContent='acertos: '+qOK+' / '+(qIdx+(qDone?1:0))}
+
+/* ─── TEFILOT ─── */
+function rTef(){
+  const pr=D.tefilot[tIdx];
+  $('card').style.display='none';$('pray').classList.add('on');
+  $('trbar').style.display='';$('qsc').style.display='none';$('lb').style.display='';$('qa').classList.remove('on');
+  $('stg').textContent='tefilá';$('stgR').innerHTML=isL(pr.id)?'<span class="badge badge-g">aprendido</span>':'';
+  const c=$('pray');c.innerHTML='';
+  c.innerHTML='<div class="pray-hd"><div class="pray-hd-h">'+pr.title+'</div><div class="pray-hd-t">'+pr.titlePt+'</div><div class="pray-hd-d">'+pr.description+'</div></div>';
+  pr.lines.forEach((l,i)=>{
+    const d=document.createElement('div');d.className='pl'+(i===pLine?' act':'');
+    d.innerHTML='<div class="pl-h">'+l.heb+'</div><div class="pl-t">'+l.tr+'</div><div class="pl-p">'+l.pt+'</div>';
+    d.onclick=()=>{pLine=i;hPL();speak(l.heb)};c.appendChild(d);
+  });
+  const cur=pr.lines[pLine];$('trt').textContent=cur?cur.pt:pr.description;$('trt').className='tr-t';
+  $('trl').textContent='tradução · linha '+(pLine+1);
+  $('pf').style.width=((tIdx/Math.max(D.tefilot.length-1,1))*100)+'%';
+  $('si').textContent=(tIdx+1)+' / '+D.tefilot.length;
+  $('bp').disabled=tIdx===0;$('bn').disabled=tIdx===D.tefilot.length-1;$('bn').textContent='próximo →';
+  const bl=$('bl');bl.textContent=isL(pr.id)?'desmarcar':'marcar aprendido';bl.className=isL(pr.id)?'nb lr':'nb';
+  uSt();
+}
+function hPL(){
+  document.querySelectorAll('.pl').forEach((e,i)=>e.classList.toggle('act',i===pLine));
+  const pr=D.tefilot[tIdx],cur=pr.lines[pLine];
+  if(cur){$('trt').textContent=cur.pt;$('trl').textContent='tradução · linha '+(pLine+1)}
+  const a=document.querySelector('.pl.act');if(a)a.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ─── RENDER ─── */
+function rCS(e){e.style.fontFamily='';e.style.fontSize='';e.style.color='';e.style.minHeight=''}
+function anim(e){e.classList.remove('si-in');void e.offsetWidth;e.classList.add('si-in')}
+
+function setP(p){
+  phase=p;idx=0;pLine=0;tIdx=0;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));
+  if(p==='quiz'){startQ();rQuiz();uSt();return}
+  if(p==='tefilot'){rTef();return}
+  render();
+}
+
+function render(){
+  const d=cData();if(!d)return;const list=cList(),tot=list.length;
+  $('pf').style.width=(tot<=1?100:(idx/(tot-1))*100)+'%';
+  $('si').textContent=(idx+1)+' / '+tot;
+  const h=$('heb'),t=$('tl'),p=$('ph'),tr=$('trt'),sg=$('stg'),sr=$('stgR'),ch=$('chips');
+  rCS(h);anim(h);h.textContent=d.char;t.textContent=d.translit;t.style.display='block';p.textContent=d.phonetic;
+  $('qa').classList.remove('on');$('card').style.display='';$('pray').classList.remove('on');
+  $('trbar').style.display='';$('qsc').style.display='none';$('lb').style.display='';$('trl').textContent='tradução';
+  const lrn=isL(d.id);sr.innerHTML=lrn?'<span class="badge badge-g">aprendido</span>':'';
+  const bl=$('bl');bl.textContent=lrn?'desmarcar':'marcar aprendido';bl.className=lrn?'nb lr':'nb';
+
+  if(phase==='letters'){
+    h.className='heb si-in';t.className='tl';sg.textContent='letra · '+(d.vowel||'');
+    ch.style.display='none';tr.textContent=d.translation||'—';tr.className=d.translation?'tr-t':'tr-t em';
+  }else if(phase==='words'){
+    h.className='heb w si-in';t.className='tl w';
+    sg.innerHTML='palavra · <span class="badge badge-c">'+(d.category||'')+'</span>';
+    tr.textContent=d.translation;tr.className='tr-t';
+    ch.style.display='flex';ch.innerHTML=(d.letters||[]).map(l=>'<div class="chip">'+l+'</div>').join('');
+  }else if(phase==='torah'){
+    h.className='heb t si-in';t.className='tl t';
+    sg.innerHTML='torá · <span class="badge badge-c">'+(d.category||'')+'</span>';
+    tr.textContent=d.translation;tr.className='tr-t';
+    ch.style.display=d.example?'flex':'none';ch.innerHTML=d.example?'<div class="chip" style="direction:rtl">'+d.example+'</div>':'';
+  }
+  $('bp').disabled=idx===0;$('bn').disabled=idx===list.length-1;$('bn').textContent='próximo →';uSt();
+}
+
+function uSt(){
+  const p=lP(),tot=D.letters.length+D.words.length+D.torah.length+D.tefilot.length;
+  $('sL').textContent=Object.keys(p.l).length;$('sT').textContent=tot;$('sS').textContent=p.s||0;
+}
+
+function next(){
+  if(phase==='quiz'){startQ();rQuiz();return}
+  if(phase==='tefilot'){if(tIdx<D.tefilot.length-1){tIdx++;pLine=0;rTef()}return}
+  if(idx<cList().length-1){idx++;render()}
+}
+function prev(){
+  if(phase==='quiz')return;
+  if(phase==='tefilot'){if(tIdx>0){tIdx--;pLine=0;rTef()}return}
+  if(idx>0){idx--;render()}
+}
+function toggleLearned(){
+  if(phase==='quiz')return;
+  if(phase==='tefilot'){togL(D.tefilot[tIdx].id);rTef();return}
+  const d=cData();if(d){togL(d.id);render()}
+}
+
+/* ─── KEYBOARD ─── */
+document.addEventListener('keydown',e=>{
+  if(document.activeElement===$('qi')){if(e.key==='Enter'){e.preventDefault();checkQ()}return}
+  if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();
+  if(e.key===' '){e.preventDefault();speak()}
+  if(e.key==='l'||e.key==='L')toggleLearned();
+  if(phase==='tefilot'){
+    if(e.key==='ArrowDown'){e.preventDefault();const pr=D.tefilot[tIdx];if(pLine<pr.lines.length-1){pLine++;hPL()}}
+    if(e.key==='ArrowUp'){e.preventDefault();if(pLine>0){pLine--;hPL()}}
+  }
+});
+
+/* ─── TOUCH: swipe nav ─── */
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>60){dx<0?next():prev()}},{passive:true});
+
+/* ─── TABS ─── */
+$('tabs').onclick=e=>{const t=e.target.closest('.tab');if(t)setP(t.dataset.p)};
+
+/* ─── LOAD DATA ─── */
+fetch('data.json').then(r=>r.json()).then(d=>{
+  D=d;sL=shuffle(d.letters);sW=shuffle(d.words);sT=shuffle(d.torah);
+  uStreak();render();
+}).catch(()=>{$('trt').textContent='Erro ao carregar dados. Verifique data.json.';$('trt').className='tr-t'});
+</script>
+</body>
+</html>
