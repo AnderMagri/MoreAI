@@ -29,17 +29,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _ttsReady = MutableStateFlow(false)
     val ttsReady: StateFlow<Boolean> = _ttsReady.asStateFlow()
 
-    private val tts = TextToSpeech(application) { status ->
-        if (status == TextToSpeech.SUCCESS) {
-            val hebrewLocale = Locale("he", "IL")
-            val result = tts.setLanguage(hebrewLocale)
-            _ttsReady.value = result != TextToSpeech.LANG_MISSING_DATA
-                    && result != TextToSpeech.LANG_NOT_SUPPORTED
-            tts.setSpeechRate(0.8f)
-        }
-    }
+    private lateinit var tts: TextToSpeech
 
     init {
+        tts = TextToSpeech(application) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val hebrewLocale = Locale("he", "IL")
+                val result = tts.setLanguage(hebrewLocale)
+                _ttsReady.value = result != TextToSpeech.LANG_MISSING_DATA
+                        && result != TextToSpeech.LANG_NOT_SUPPORTED
+                tts.setSpeechRate(0.8f)
+            }
+        }
         pickRandom()
     }
 
