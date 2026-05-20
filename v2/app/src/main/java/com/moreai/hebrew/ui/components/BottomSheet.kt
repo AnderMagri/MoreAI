@@ -1,109 +1,103 @@
 package com.moreai.hebrew.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moreai.hebrew.data.model.AppSettings
 import com.moreai.hebrew.data.model.Category
-import com.moreai.hebrew.ui.theme.BlueAccent
 import com.moreai.hebrew.ui.theme.DarkBackground
 import com.moreai.hebrew.ui.theme.GhostWhite
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsBottomSheet(
     settings: AppSettings,
     onDismiss: () -> Unit,
     onCategorySelected: (Category) -> Unit,
     onToggleNikkud: () -> Unit,
-    onToggleOnlyWords: () -> Unit
+    onToggleOnlyWords: () -> Unit,
+    onToggleLargeText: () -> Unit = {}
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = GhostWhite,
-        dragHandle = null
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(GhostWhite)
     ) {
-        Column(
+        // Close button — top right
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 48.dp, end = 48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Fechar",
+                modifier = Modifier.size(24.dp),
+                tint = DarkBackground
+            )
+        }
+
+        // Content — centered
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
+                .align(Alignment.Center),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+            // Left side — toggles
+            Column(
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Fechar",
-                        modifier = Modifier.size(24.dp),
-                        tint = DarkBackground
+                SettingToggle(
+                    label = "Large text",
+                    enabled = settings.largeText,
+                    onClick = onToggleLargeText
+                )
+                SettingToggle(
+                    label = "Only words",
+                    enabled = settings.onlyWords,
+                    onClick = onToggleOnlyWords
+                )
+            }
+
+            Spacer(modifier = Modifier.width(80.dp))
+
+            // Right side — category pills
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Category.entries.forEach { category ->
+                    CategoryPill(
+                        category = category,
+                        selected = category == settings.selectedCategory,
+                        onClick = { onCategorySelected(category) },
+                        darkMode = false
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    SettingToggle(
-                        label = "Nikkud",
-                        checked = settings.showNikkud,
-                        onToggle = onToggleNikkud
-                    )
-                    SettingToggle(
-                        label = "Só palavras",
-                        checked = settings.onlyWords,
-                        onToggle = onToggleOnlyWords
-                    )
-                }
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(36.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Category.entries.forEach { category ->
-                        CategoryPill(
-                            category = category,
-                            selected = category == settings.selectedCategory,
-                            onClick = { onCategorySelected(category) },
-                            darkMode = false
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -111,20 +105,19 @@ fun SettingsBottomSheet(
 @Composable
 private fun SettingToggle(
     label: String,
-    checked: Boolean,
-    onToggle: () -> Unit
+    enabled: Boolean,
+    onClick: () -> Unit
 ) {
     Row(
+        modifier = Modifier.clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Switch(
-            checked = checked,
-            onCheckedChange = { onToggle() },
-            colors = SwitchDefaults.colors(
-                checkedTrackColor = BlueAccent,
-                uncheckedTrackColor = Color.LightGray
-            )
+        Icon(
+            imageVector = if (enabled) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+            contentDescription = label,
+            modifier = Modifier.size(24.dp),
+            tint = DarkBackground
         )
         Text(
             text = label,

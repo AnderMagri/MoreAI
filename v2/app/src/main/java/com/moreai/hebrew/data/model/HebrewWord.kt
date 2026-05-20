@@ -26,5 +26,6 @@ data class HebrewEntry(
 data class AppSettings(
     val showNikkud: Boolean = true,
     val onlyWords: Boolean = true,
+    val largeText: Boolean = false,
     val selectedCategory: Category = Category.TORAH
 )

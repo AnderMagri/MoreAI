@@ -60,19 +60,19 @@ fun CategoryPill(
         border = BorderStroke(1.dp, borderColor)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 40.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = category.label,
-                fontSize = 20.sp,
+                fontSize = 16.sp,
                 color = textColor
             )
             Icon(
                 imageVector = category.icon(),
                 contentDescription = category.label,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(18.dp),
                 tint = iconTint
             )
         }

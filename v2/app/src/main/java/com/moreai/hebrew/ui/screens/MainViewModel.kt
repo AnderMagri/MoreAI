@@ -64,6 +64,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         pickRandom()
     }
 
+    fun toggleLargeText() {
+        _settings.update { it.copy(largeText = !it.largeText) }
+    }
+
     fun selectCategory(category: Category) {
         _settings.update { it.copy(selectedCategory = category) }
         pickRandom()

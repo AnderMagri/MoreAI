@@ -49,7 +49,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             onClick = { viewModel.toggleBottomSheet() },
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 48.dp),
+                .padding(top = 32.dp),
             darkMode = true
         )
 
@@ -59,7 +59,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 HebrewEntryDisplay(
                     entry = currentEntry,
                     showNikkud = settings.showNikkud,
-                    largeText = false
+                    largeText = settings.largeText
                 )
             }
 
@@ -122,7 +122,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 viewModel.hideBottomSheet()
             },
             onToggleNikkud = { viewModel.toggleNikkud() },
-            onToggleOnlyWords = { viewModel.toggleOnlyWords() }
+            onToggleOnlyWords = { viewModel.toggleOnlyWords() },
+            onToggleLargeText = { viewModel.toggleLargeText() }
         )
     }
 }
